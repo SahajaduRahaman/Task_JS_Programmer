@@ -1,5 +1,5 @@
 body {
-    min-width: 410px;
+    min-width: 255px;
 }
 
 table {
@@ -22,7 +22,7 @@ th {
     cursor: pointer;
 }
 
-.toolbar {
+.toolbar-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -30,6 +30,12 @@ th {
     border-radius: 10px 10px 0px 0px;
     color: white;
     background-color: rgb(156, 154, 128);
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .toolbar button {
@@ -85,5 +91,23 @@ button:active {
     td {
       display: flex;
       justify-content: center;
+    }
+}
+
+@media screen and (max-width: 540px) {
+
+    .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-evenly;
+        align-items: center;
+        margin-top: 10px;
+    }
+}
+
+@media screen and (max-width: 300px) {
+
+    thead {
+        display: none;
     }
 }
