@@ -40,9 +40,10 @@ tr td:first-child{
 }
 
 button {
-    height: 30px;
-    width: 30px;
-    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 45%;
     background-color: rgb(202, 132, 28);
     border: 2px solid rgb(34, 31, 31);
 }

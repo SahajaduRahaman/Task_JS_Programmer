@@ -1,3 +1,5 @@
+const ascending = document.getElementById("ascending");
+const descending = document.getElementById("descending");
 const addButton = document.getElementById("add-row");
 const moveUpButton = document.getElementById("move-row-up");
 const moveDownButton = document.getElementById("move-row-down");
@@ -318,3 +320,16 @@ function arrangeId() {
     row.id = i + 1;
   }
 }
+
+ascending.addEventListener('click', () => {
+  rows = "";
+  renderTable(chemicalData);
+})
+
+descending.addEventListener('click', () => {
+  rows = "";
+  for (let i = chemicalData.length - 1; i >= 0; i--) {
+    generateTableRows(chemicalData[i]);
+  }
+  tBody.innerHTML = rows;
+})
