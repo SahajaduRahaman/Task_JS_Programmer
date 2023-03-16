@@ -5,6 +5,8 @@ const deleteButton = document.getElementById("delete-row");
 const refreshButton = document.getElementById("refresh-data");
 const saveButton = document.getElementById("save-data");
 
+const tBody = document.querySelector("#chemicals-table tbody");
+let rows = "";
 let selectedRow = [];
 
 let chemicalData = [
@@ -176,10 +178,7 @@ let chemicalData = [
 ];
 getDataFromStorage();
 
-// Function to generate table rows
-function generateTableRows(data) {
-  let rows = "";
-  data.forEach((item) => {
+function generateTableRows(item) {
     rows += `
             <tr>
                 <td><input type="checkbox" onclick="selectRow(event)" data-row-id="${item.id}" /></td>
@@ -194,19 +193,18 @@ function generateTableRows(data) {
                 <td oninput="changeValue(event)" data-row-id="${item.id}" data-row-name="quantity" contenteditable>${item.quantity}</td>
             </tr>
         `;
-  });
   return rows;
 }
 
 function renderTable(data) {
-  const table = document.querySelector("#chemicals-table tbody");
-  table.innerHTML = generateTableRows(data);
+  data.forEach((item) => generateTableRows(item));
+  tBody.innerHTML = rows;
 }
 
 renderTable(chemicalData);
 
 addButton.addEventListener("click", () => {
-  let rows = {
+  let row = {
     id: chemicalData.length + 1,
     name: "",
     vendor: "",
@@ -217,9 +215,9 @@ addButton.addEventListener("click", () => {
     unit: "",
     quantity: "",
   };
-  chemicalData.push(rows);
-  saveData();
-  renderTable(chemicalData);
+  chemicalData.push(row);
+  generateTableRows(row);
+  tBody.innerHTML = rows;
 });
 
 function saveData() {
@@ -229,16 +227,9 @@ function saveData() {
 
 function getDataFromStorage() {
   const newData = localStorage.getItem(LOCAL_STORAGE);
-  let data = JSON.parse(newData) ? JSON.parse(newData) : chemicalData;
-  sortList(data);
-  return chemicalData;
+  chemicalData = JSON.parse(newData) ? JSON.parse(newData) : chemicalData;
 }
 
-function sortList(data) {
-  chemicalData = data.sort(function (a, b) {
-    return a.id - b.id;
-  });
-}
 
 function selectRow(e) {
   const element = e.target;
@@ -253,44 +244,48 @@ function selectRow(e) {
 
 function changeValue(e) {
   const element = e.target;
-  const value = element.innerHTML;
   const id = Number(element.dataset.rowId);
+  const value = element.innerHTML;
   const colName = element.dataset.rowName;
-  chemicalData = chemicalData.map((row) => {
-    if (row.id === id) {
-      const obj = { ...row };
-      obj[colName] = value;
-      return obj;
-    }
-    return row;
+  chemicalData[id -1][colName] = value;
+}
+
+
+function sortList(data) {
+  chemicalData = data.sort(function (a, b) {
+    return a.id - b.id;
   });
 }
 
+
 function moveUp() {
-  for (let i = 1; i < chemicalData.length; i++) {
-    const row = chemicalData[i];
-    if (selectedRow.includes(row.id)) {
-      chemicalData[i - 1].id = row.id;
-      row.id -= 1;
+  for (let i = 0; i < selectedRow.length; i++) {
+    let row = selectedRow[i];
+    if (row >= 2) {
+      chemicalData[row - 2].id = row;
+      chemicalData[row - 1].id = row - 1;
+      sortList(chemicalData);
     }
   }
   selectedRow = [];
-  sortList(chemicalData);
   saveData();
+  rows = "";
   renderTable(chemicalData);
 }
 
+
 function moveDown() {
-  for (let i = chemicalData.length - 2; i >= 0; i--) {
-    const row = chemicalData[i];
-    if (selectedRow.includes(row.id)) {
-      chemicalData[i + 1].id = row.id;
-      row.id += 1;
+  for (let i = selectedRow.length - 1; i >= 0; i--) {
+    let row = selectedRow[i];
+    if (row < chemicalData.length) {
+      chemicalData[row - 1].id = row + 1;
+      chemicalData[row].id = row;
+      sortList(chemicalData);
     }
   }
   selectedRow = [];
-  sortList(chemicalData);
   saveData();
+  rows = "";
   renderTable(chemicalData);
 }
 
@@ -300,20 +295,20 @@ saveButton.addEventListener('click', () => {
 
 refreshButton.addEventListener('click', () => {
   getDataFromStorage();
+  rows = "";
   renderTable(chemicalData);
 })
 
+
 deleteButton.addEventListener('click', () => {
-  for (let i = 0; i < chemicalData.length; i++) {
-    const row = chemicalData[i];
-    if (selectedRow.includes(row.id)) {
-      chemicalData = chemicalData.filter((item) => item.id !== row.id);
-    }
+  for (let i = 0; i < selectedRow.length; i++) {
+    let row = selectedRow[i];
+    chemicalData = chemicalData.filter((item) => item.id !== row);
   }
   selectedRow = [];
   arrangeId();
-  sortList(chemicalData);
   saveData();
+  rows = "";
   renderTable(chemicalData);
 })
 
